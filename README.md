@@ -20,7 +20,7 @@ import stevenpy
 
 """
 IMPORTANT: if: if __name__== '__main__': is not used, the code will not work!!!
-multiprocessing will not be to function properly without it.
+multiprocessing will not be able to function properly without it.
 """
 if __name__ == '__main__':
 
