@@ -18,6 +18,10 @@ pip install stevenpy
 ```python
 import stevenpy
 
+'''
+IMPORTANT: if: if __name__== '__main__': is not used, the code will not work!!!
+multiprocessing will not be to function properly without it.
+'''
 if __name__ == '__main__':
 
 # first create a task which is done for each document in your selected document folder
