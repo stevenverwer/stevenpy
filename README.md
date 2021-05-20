@@ -1,7 +1,4 @@
 # stevenpy
- Parallel pooling pdf scraper
-
-# stevenpy
 
 stevenpy is a powerful Python library for Parallel pooling document processing (Currently only PDF)
 
