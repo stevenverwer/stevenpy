@@ -13,8 +13,8 @@ from io import StringIO
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.converter import TextConverter
-from pdfminer.layout import LAParams
+from pdfminer.converter import TextConverter, PDFPageAggregator
+from pdfminer.layout import LAParams, LTTextBox, LTTextLine, LTFigure, LTChar
 from pdfminer.pdfpage import PDFPage
 
 def __check_instance__(variable, reqType):
@@ -31,12 +31,16 @@ class pdf_class (object):
                 self.dat_loc = kwargs.get('dat_loc')
                 self.password = ""
                 self.maxpages = kwargs.get('maxpages',0)
+                self.detect_vertical = True
                 self.caching = True
                 self.rsrcmgr = PDFResourceManager()
                 self.retstr = StringIO()
                 self.laparams = LAParams()
-                self.device = TextConverter(self.rsrcmgr, self.retstr, laparams=self.laparams)
-                self.interpreter = PDFPageInterpreter(self.rsrcmgr, self.device)
+                self.converter = TextConverter(self.rsrcmgr, self.retstr, laparams=self.laparams)
+                self.interpreter = PDFPageInterpreter(self.rsrcmgr, self.converter)
+                
+                self.layout_device = PDFPageAggregator(self.rscrmgr, laparams=self.laparams)
+                self.layout_interpreter = PDFPageInterpreter(self.rsrcmgr, self.layout_device)
                 self.pagenos=set()
                 return
             
@@ -45,6 +49,7 @@ class pdf_class (object):
                 pages = PDFPage.get_pages(self.fp,
                                       self.pagenos,
                                       maxpages=self.maxpages,
+                                      detect_vertical=self.detect_vertical,
                                       password=self.password,
                                       caching=self.caching,
                                       check_extractable=True)
@@ -57,7 +62,11 @@ class pdf_class (object):
                 self.retstr.seek(0)
                 self.interpreter.process_page(page)
                 return self.retstr.getvalue()
-
+            
+            def __page_lt_objs__(self,page):
+                self.layout_interpreter.process_page(page)
+                return self.layout_device.get_result()
+            
             def __inbuild_regex__(self,pages,expression,label):
                 data = label + ',' + 'pageNum' + ',' + 'ModDate\n'
                 pageNum = 1
@@ -76,9 +85,22 @@ class pdf_class (object):
                     pageNum +=1
                 return data
             
+            def __layout_textlines__(self,objs):
+                textline_objs = []
+                for obj in objs:
+                    if isinstance(obj, LTTextBox):
+                        for sub_obj in obj._objs:
+                            if isinstance(sub_obj,LTTextLine):
+                                textline_objs += [sub_obj]
+                    # if it's a container, recurse
+                    elif isinstance(obj, LTFigure):
+                        textline_objs += self.layout_textlines(obj)
+                return textline_objs
+                    
+            
             def __terminate__(self):
                 self.fp.close()
-                self.device.close()
+                self.converter.close()
                 self.retstr.close()
                 return None
 

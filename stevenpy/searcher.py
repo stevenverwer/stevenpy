@@ -44,6 +44,8 @@ class searcher (object):
         stevenpy.__check_instance__(self.check_progression, bool)
         
         
+        
+        
         # data and result paths
         stevenpy.__check_instance__( kwargs.get('dat_loc', 'data'), str )
         self.dat_loc = Path( kwargs.get('dat_loc', 'data') )
@@ -131,5 +133,40 @@ class searcher (object):
                 filenamecsv = each.title + '.csv'
                 with open(self.processed_loc / filename / filenamecsv, 'w', newline='') as f:
                     f.write(data)
+            
+            if each.search_type == 'special':
+                data = each.header + '\n'
+                pageNum = 1
+                for page in pages:
+                    if each.tags_mode:
+                        layout_textlines = pdf_object.__layout_textlines__(page)
+                        data += each.function(layout_textlines,pageNum)
+                    else:
+                        pagestr = pdf_object.__pagestr__(page)
+                        data += each.func(pagestr,pageNum)
+                    pageNum +=1
+                filenamecsv = each.title + '.csv'
+                with open(self.processed_loc / filename / filenamecsv, 'w', newline='') as f:
+                    f.write(data)
         pdf_object.__terminate__()
         return data
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

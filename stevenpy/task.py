@@ -32,9 +32,10 @@ class task (object):
         if search_type == 'regex':
             self.expression = kwargs.get('expression')
             self.label = kwargs.get('label','found_string')
-            
         elif search_type == 'special':
-            self.function = kwargs.get('function')
+            self.func = kwargs.get('func')
+            self.tags_mode = kwargs.get('tags_mode',False)
+            self.header = kwargs.get('header')
         else:
             raise Exception('Given search_type: ' + self.search_type +
                             ' could not be identified.\n' + "Use 'special' or 'regex'.")
