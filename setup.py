@@ -1,7 +1,7 @@
-from distutils.core import setup
+import setuptools
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
-setup(
+setuptools.setup(
   name = 'stevenpy',         # How you named your package folder (MyLib)
   packages = ['stevenpy'],   # Chose the same as "name"
   version = '0.0.2',      # Start with a small number and increase it with every change you make
